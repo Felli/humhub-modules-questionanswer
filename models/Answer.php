@@ -29,7 +29,7 @@ class Answer extends ContentActiveRecord implements Searchable
 	/**
 	 * @inheritdoc
 	 */
-	public $autoAddToWall = true;
+	public $autoAddToWall = false;
 
 	/**
 	 * @inheritdoc
