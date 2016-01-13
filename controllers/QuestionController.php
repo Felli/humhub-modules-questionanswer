@@ -71,15 +71,21 @@ class QuestionController extends Controller
 
             if ($question->validate()) {
 
-                $question->save();
+				// Save and Index the `content` object the search engine
+				// NOTE: You could probably do this by adding in container->visibility yourself
+				// NOTE2: it's also worth looking at doing this the right way and making Q&A a module
+				//			which can be enabled on Spaces and Users.
+				// 		This will free us from needing to do work arounds like below :)
+				\humhub\modules\content\widgets\WallCreateContentForm::create($question, $contentContainer);
+				$question->save();
 
                 if(isset($_POST['Tags'])) {
                     // Split tag string into array
                     $tags = explode(", ", $_POST['Tags']);
                     foreach($tags as $tag) {
 
-                        $tag = Tag::firstOrCreate($tag);
-                        $question_tag = new QuestionTag();
+                        $tag = Tag::firstOrCreate($tag, $contentContainer);
+						$question_tag = new QuestionTag();
                         $question_tag->question_id = $question->id;
                         $question_tag->tag_id = $tag->id;
                         $question_tag->save();

@@ -6,7 +6,6 @@ use Yii;
 use humhub\modules\user\models\User;
 use humhub\models\Setting;
 
-
 /**
  * QuestionWallEntryWidget is used to display a question inside the stream.
  *
@@ -14,17 +13,14 @@ use humhub\models\Setting;
  *
  * @package humhub.modules.questionanswer.widgets
  * @since 0.5
- * @author Luke
+ * @author Ben
  */
-class AnswerWallEntryWidget extends \humhub\modules\content\widgets\WallEntry
+class TagWallEntryWidget extends \humhub\modules\content\widgets\WallEntry
 {
-    public $answer;
-
     public function run() {
-        return $this->render('searchResult_answer', array(
-            'answer' => $this->contentObject,
+        return $this->render('searchResult_tag', array(
+            'tag' => $this->contentObject,
         ));
     }
-}
 
-?>
+}

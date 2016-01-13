@@ -61,7 +61,10 @@ class AnswerController extends Controller
             $answer->content->attachFileGuidsAfterSave = Yii::$app->request->post('fileList');
 
 
-			if ($answer->validate() && $answer->save()) {
+            if ($answer->validate()) {
+
+				$data = \humhub\modules\content\widgets\WallCreateContentForm::create($answer, $contentContainer);
+				$answer->save();
                 $this->redirect(Url::toRoute(['question/view', 'id' => $answer->question_id]));
             }
         }

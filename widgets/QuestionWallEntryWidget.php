@@ -18,13 +18,16 @@ use humhub\models\Setting;
 class QuestionWallEntryWidget extends \humhub\modules\content\widgets\WallEntry
 {
 
-    public $question;
-
+    /**
+     * NOTE:
+     * Humhub have removed the ability to have
+     * different views for the Wall Entry and
+     * search result.
+     */
     public function run() {
-
-        $this->render('entry', array('question' => $this->question,
-            'user' => $this->question->content->user,
-            'contentContainer' => $this->question->content->container));
+        return $this->render('searchResult', array(
+            'question' => $this->contentObject,
+        ));
     }
 
 }
