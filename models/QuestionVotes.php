@@ -195,7 +195,7 @@ class QuestionVotes extends ActiveRecord
 	 */
 	public static function castVote($questionVotesModel, $question_id) 
 	{
-		
+
 		$question = Question::findOne(array('question_id', $question_id));
 		$questionVotesModel->created_by = Yii::$app->user->id;	
     

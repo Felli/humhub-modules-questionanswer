@@ -22,8 +22,8 @@ use humhub\modules\questionanswer\models\QuestionVotes;
                 }
             }
 
-            echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $data->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'up', 'class' => $upBtnClass, 'should_open_question' => 0));
-            echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $data->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'down', 'class' => $downBtnClass, 'should_open_question' => 0));
+            echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $data->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'up', 'btn_class' => $upBtnClass, 'should_open_question' => 0));
+            echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $data->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'down', 'btn_class' => $downBtnClass, 'should_open_question' => 0));
 
             ?>
         </div>

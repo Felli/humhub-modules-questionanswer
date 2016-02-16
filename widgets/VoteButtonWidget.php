@@ -19,7 +19,7 @@ class VoteButtonWidget extends \yii\base\Widget
     public $model; 
     public $vote_on;
     public $vote_type;
-    public $class;
+    public $btn_class;
     public $should_open_question;
     /**
      * Executes the widget.
@@ -31,8 +31,8 @@ class VoteButtonWidget extends \yii\base\Widget
             'model' => $this->model, 
             'vote_on' => $this->vote_on, 
             'vote_type' => $this->vote_type,
-            'class' => $this->class,
-            'should_open_question' => $this->should_open_question
+            'btn_class' => $this->btn_class,
+            'should_open_question' => $this->should_open_question,
         ));
     }
 

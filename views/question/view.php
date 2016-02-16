@@ -9,7 +9,6 @@ use humhub\modules\file\widgets\ShowFiles;
 use yii\helpers\Url;
 use yii\helpers\Html;
 ?>
-
 <div class="container">
     <div class="row">
         <div class="col-md-9">
@@ -23,7 +22,8 @@ use yii\helpers\Html;
                                 $upBtnClass = ""; $downBtnClass = "";
 
                                 // Change the button class to 'active' if the user has voted
-                                $vote = QuestionVotes::find()->where(['post_id' => Yii::$app->getUser()->id])->one();
+
+                                $vote = QuestionVotes::findOne(['post_id' => $model->id, 'created_by' => Yii::$app->user->id]);
                                 if($vote) {
                                     if($vote->vote_type == "up") {
                                         $upBtnClass = "active btn-info";
@@ -33,12 +33,12 @@ use yii\helpers\Html;
                                         $upBtnClass = "";
                                     }
                                 }
-                        
+
                                 ?>
 
 
                                 <?php
-                                echo VoteButtonWidget::widget(array('post_id' => $model->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'up', 'class' => $upBtnClass, 'should_open_question' => 1));
+                                echo VoteButtonWidget::widget(array('post_id' => $model->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'up', 'btn_class' => $upBtnClass, 'should_open_question' => 1));
                                 ?>
                                 <div class="text-center"><strong>
                                 <?php
@@ -46,7 +46,7 @@ use yii\helpers\Html;
                                 ?>
                                 </strong><br /></div>
 								<?php
-                                echo VoteButtonWidget::widget(array('post_id' => $model->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'down', 'class' => $downBtnClass,  'should_open_question' => 1));
+                                echo VoteButtonWidget::widget(array('post_id' => $model->id, 'model' => new QuestionVotes, 'vote_on' => 'question', 'vote_type' => 'down', 'btn_class' => $downBtnClass,  'should_open_question' => 1));
                                 ?>
                             </div>
                             
@@ -147,9 +147,9 @@ use yii\helpers\Html;
                                     }
                                 }
                                 ?>
-                                <?php echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $question_answer['id'], 'model' => new QuestionVotes, 'vote_on' => 'answer', 'vote_type' => 'up', 'class' => $upBtnClass, 'should_open_question' => 0));?>
+                                <?php echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $question_answer['id'], 'model' => new QuestionVotes, 'vote_on' => 'answer', 'vote_type' => 'up', 'btn_class' => $upBtnClass, 'should_open_question' => 0));?>
                                 <div class="text-center"><strong><?php echo $question_answer['score']; ?></strong><br /></div>
-                                <?php echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $question_answer['id'], 'model' => new QuestionVotes, 'vote_on' => 'answer', 'vote_type' => 'down', 'class' => $downBtnClass, 'should_open_question' => 0));?>
+                                <?php echo \humhub\modules\questionanswer\widgets\VoteButtonWidget::widget(array('post_id' => $question_answer['id'], 'model' => new QuestionVotes, 'vote_on' => 'answer', 'vote_type' => 'down', 'btn_class' => $downBtnClass, 'should_open_question' => 0));?>
                             </div>
                         </div>
                         <?php

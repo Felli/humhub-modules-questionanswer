@@ -1,9 +1,12 @@
 <?php
 
 namespace humhub\modules\questionanswer\controllers;
+
+use Yii;
 use humhub\components\Controller;
 use humhub\modules\questionanswer\models\QuestionVotes;
 use humhub\modules\questionanswer\models\Answer;
+use yii\helpers\Url;
 
 class VoteController extends Controller
 {
@@ -29,9 +32,6 @@ class VoteController extends Controller
 	{
 		$model=new QuestionVotes;
 
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
 		if(isset($_POST['QuestionVotes']))
 		{
 			$model->attributes=$_POST['QuestionVotes'];
@@ -56,18 +56,13 @@ class VoteController extends Controller
 				if($_POST['QuestionVotes']['should_open_question'] || $model->vote_on == "answer") {
 					$this->redirect(array('//questionanswer/question/view','id'=>$question_id));
 				} else {
-					$this->redirect(array('//questionanswer/question/index'));
+					$this->redirect(Url::toRoute(['question/index']));
 				}
 
 			}
 
-
 		}
 
-		//should never get here
-		$this->render('create',array(
-			'model'=>$model,
-		));
 	}
 
 	/**
