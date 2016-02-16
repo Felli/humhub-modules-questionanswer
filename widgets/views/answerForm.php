@@ -1,26 +1,17 @@
-<?php $form = \yii\widgets\ActiveForm::begin([
-    'action' => \yii\helpers\Url::toRoute('answer/create')
-]); ?>
-<div class="panel panel-default">
+
+<?php
+use yii\widgets\ActiveForm;
+
+$form=ActiveForm::begin(array(
+    'action' => yii\helpers\url::toRoute('answer/create')
+)); ?>
+<div class="panel panel-default panel-answer">
     <div class="panel-heading">
-        <strong>Answer</strong> this question
+        <strong>Your</strong> answer
     </div>
     <div class="panel-body">
-        <?php echo $form->errorSummary($answer); ?>
-        <?php
-        echo $form->field($answer, 'post_text', array(
-            'options' => array(
-                'id' => "contentForm_answersText",
-                'rows' => '5',
-                'style' => 'height: auto !important;',
-                "class" => "contentForm",
-                "placeholder" => "Your answer..."
-            )
-        ))->textArea(['rows' => 6]);
-        ?>
-        <?php
-        echo $form->field($answer, 'question_id')->hiddenInput(['value' => $question->id])->label(false);
-        ?>
+        <?php echo $form->field($answer, 'post_text')->textarea(array( 'rows' => '5', 'style' => 'height: auto !important;', "class" => "form-control contentForm", "tabindex" => "2", "placeholder" => "Your answer..."))->label(false); ?>
+        <?php echo $form->field($answer,'question_id')->hiddenInput(array('value' => $question->id))->label(false); ?>
         <div class="pull-left">
             <?php
             // Creates Uploading Button
@@ -60,5 +51,4 @@
         <?php echo \yii\helpers\Html::submitButton('Submit', array('class' => ' btn btn-info pull-right', 'style' => 'margin-top: 5px;')); ?>
     </div>
 </div>
-
 <?php \yii\widgets\ActiveForm::end(); ?>
