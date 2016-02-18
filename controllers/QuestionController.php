@@ -43,6 +43,18 @@ class QuestionController extends Controller
 		echo ">>>>>> STARTING QUESTION REINDEX >>>>>>>><br>";
 		foreach (Question::find()->all() as $obj) {
 			echo "[#".$obj->id."] " . $obj->post_title . "<br>";
+
+			// Add a content container to the object if there isn't one
+			if($obj->content == null) {
+				$containerClass = User::className();
+				$contentContainer = $containerClass::findOne(['guid' => User::findIdentity($obj->created_by)->guid]);
+				$obj->content->container = $contentContainer;
+
+				\humhub\modules\content\widgets\WallCreateContentForm::create($obj, $contentContainer);
+				$obj->save();
+			}
+
+
 			\Yii::$app->search->delete($obj);
 			\Yii::$app->search->add($obj);
 		}
