@@ -45,7 +45,7 @@ class QuestionController extends Controller
 			echo "[#".$obj->id."] " . $obj->post_title . "<br>";
 
 			// Add a content container to the object if there isn't one
-			if($obj->content == null) {
+			if($obj->content->container == null) {
 				$containerClass = User::className();
 				$contentContainer = $containerClass::findOne(['guid' => User::findIdentity($obj->created_by)->guid]);
 				$obj->content->container = $contentContainer;
@@ -62,23 +62,23 @@ class QuestionController extends Controller
 
 
 		// Remove all answers from search index then index them again
-		echo ">>>>>> STARTING ANSWER REINDEX >>>>>>>><br>";
-		foreach(Answer::find()->all() as $foo) {
+		/*echo ">>>>>> STARTING ANSWER REINDEX >>>>>>>><br>";
+		foreach(Answer::find()->all() as $obj) {
 			echo "[#".$obj->id."] " . $obj->post_text . "<br>";
 			\Yii::$app->search->delete($obj);
 			\Yii::$app->search->add($obj);
 		}
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";*/
 
 
 		// Remove all tags from search index then index them again
-		echo ">>>>>> STARTING TAG REINDEX >>>>>>>><br>";
+		/*echo ">>>>>> STARTING TAG REINDEX >>>>>>>><br>";
 		foreach(Tag::find()->all() as $obj) {
 			echo "[#".$obj->id."] " . $obj->tag . "<br>";
 			\Yii::$app->search->delete($obj);
 			\Yii::$app->search->add($obj);
 		}
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br><br>";
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br><br>";*/
 		echo "Reindex complete";
 	}
 
