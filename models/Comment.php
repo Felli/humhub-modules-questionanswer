@@ -37,12 +37,11 @@ class Comment extends ActiveRecord
 	 * Set default scope so that
 	 * only comments are retrieved 
 	 */
-    public function defaultScope()
-    {
-        return array(
-            'condition'=>"post_type='comment'",
-        );
-    }
+	public static function find()
+	{
+		return parent::find()->andWhere(['post_type' => 'comment']);
+	}
+
 
 
     /** 

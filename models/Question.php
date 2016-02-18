@@ -130,12 +130,9 @@ class Question extends ContentActiveRecord implements Searchable
 	 * Set default scope so that
 	 * only questions are retrieved
 	 */
-	public function defaultScope()
+	public static function find()
 	{
-		return array(
-			'alias' => $this->tableName(),
-			'condition'=>"question.post_type='question'",
-		);
+		return parent::find()->andWhere(['post_type' => 'question']);
 	}
 
 
