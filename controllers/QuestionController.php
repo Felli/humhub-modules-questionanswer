@@ -45,14 +45,14 @@ class QuestionController extends Controller
 			echo "[#".$obj->id."] " . $obj->post_title . "<br>";
 
 			// Add a content container to the object if there isn't one
-			if($obj->content->container == null) {
+//			if($obj->content->container == null) {
 				$containerClass = User::className();
 				$contentContainer = $containerClass::findOne(['guid' => User::findIdentity($obj->created_by)->guid]);
 				$obj->content->container = $contentContainer;
 
 				\humhub\modules\content\widgets\WallCreateContentForm::create($obj, $contentContainer);
 				$obj->save();
-			}
+//			}
 
 
 			\Yii::$app->search->delete($obj);
