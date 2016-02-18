@@ -105,14 +105,12 @@ class Answer extends ContentActiveRecord implements Searchable
 	/** 
 	 * Add scopes to Answer model
 	 */
-    public function scopes()
-    {
-        return array(
-            'answers'=>array(
-                'condition'=>"post_type='answer'",
-            )
-        );
-    }
+	public static function find()
+	{
+		return parent::find()->andWhere(['post_type' => 'answer']);
+	}
+
+
 
 	/** 
 	 * Filters results by the question_id
