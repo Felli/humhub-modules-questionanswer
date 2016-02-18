@@ -31,6 +31,46 @@ class QuestionController extends Controller
     }
 
 	/**
+	 * ReIndex:
+	 *  - Questions
+	 *  - Answers
+	 *  - Comments
+	 */
+	public function actionReindex()
+	{
+
+		// Remove all questions from search index then index again
+		echo ">>>>>> STARTING QUESTION REINDEX >>>>>>>><br>";
+		foreach (Question::find()->all() as $obj) {
+			echo "[#".$obj->id."] " . $obj->post_title . "<br>";
+			\Yii::$app->search->delete($obj);
+			\Yii::$app->search->add($obj);
+		}
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";
+
+
+		// Remove all answers from search index then index them again
+		echo ">>>>>> STARTING ANSWER REINDEX >>>>>>>><br>";
+		foreach(Answer::find()->all() as $foo) {
+			echo "[#".$obj->id."] " . $obj->post_text . "<br>";
+			\Yii::$app->search->delete($obj);
+			\Yii::$app->search->add($obj);
+		}
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";
+
+
+		// Remove all tags from search index then index them again
+		echo ">>>>>> STARTING TAG REINDEX >>>>>>>><br>";
+		foreach(Tag::find()->all() as $obj) {
+			echo "[#".$obj->id."] " . $obj->tag . "<br>";
+			\Yii::$app->search->delete($obj);
+			\Yii::$app->search->add($obj);
+		}
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br><br>";
+		echo "Reindex complete";
+	}
+
+	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
@@ -153,38 +193,6 @@ class QuestionController extends Controller
 	public function actionIndex()
 	{
 
-		// TODO: Use below. 
-		// This will produce the same results as Question::model->overview()
-		// our current implementation does a handful of additional queries 
-		// from within the view to load up question info
-		/*
-		$criteria=new CDbCriteria;
-		$criteria->select = "question.id, question.post_title, question.post_text, question.post_type, COUNT(DISTINCT answers.id) as answers, (COUNT(DISTINCT up.id) - COUNT(DISTINCT down.id)) as score, (COUNT(DISTINCT up.id) + COUNT(DISTINCT down.id)) as vote_count, COUNT(DISTINCT up.id) as up_votes, COUNT(DISTINCT down.id) as down_votes";
-
-		$criteria->join = "LEFT JOIN question_votes up ON (question.id = up.post_id AND up.vote_on = 'question' AND up.vote_type = 'up')
-							LEFT JOIN question_votes down ON (question.id = down.post_id AND down.vote_on = 'question' AND down.vote_type = 'down')
-							LEFT JOIN question answers ON (question.id = answers.question_id AND answers.post_type = 'answer')";
-
-		$criteria->group = "question.id";
-		$criteria->order = "question.created_at DESC, score DESC, vote_count DESC";
-
-		$dataProvider=new CActiveDataProvider('Question', array(
-			'criteria'=>$criteria
-		));
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-		*/
-
-		/*$dataProvider=new CActiveDataProvider('Question', array(
-			'criteria'=>array(
-				'order'=>'created_at DESC',
-			)
-		));
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));*/
-
         $searchModel = new QuestionSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->setSort([
@@ -199,8 +207,6 @@ class QuestionController extends Controller
             'model' => Question::find()
         ));
 
-
-
     }
 
 	/** 
@@ -208,26 +214,6 @@ class QuestionController extends Controller
 	 */
 	public function actionUnanswered()
 	{
-
-		/*$criteria=new CDbCriteria;
-		$criteria->select = "question.id, question.post_title, question.post_text, question.post_type, COUNT(DISTINCT answers.id) as answers, (COUNT(DISTINCT up.id) - COUNT(DISTINCT down.id)) as score, (COUNT(DISTINCT up.id) + COUNT(DISTINCT down.id)) as vote_count, COUNT(DISTINCT up.id) as up_votes, COUNT(DISTINCT down.id) as down_votes";
-
-		$criteria->join = "LEFT JOIN question_votes up ON (question.id = up.post_id AND up.vote_on = 'question' AND up.vote_type = 'up')
-							LEFT JOIN question_votes down ON (question.id = down.post_id AND down.vote_on = 'question' AND down.vote_type = 'down')
-							LEFT JOIN question answers ON (question.id = answers.question_id AND answers.post_type = 'answer')";
-
-		$criteria->group = "question.id";
-		$criteria->having = "answers = 0";
-		$criteria->order = "score DESC, vote_count DESC, question.created_at DESC";
-
-		$dataProvider=new CActiveDataProvider('Question', array(
-			'criteria'=>$criteria
-		));
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-		*/
-
 
 		$criteria = Question::find();
 		$criteria->select("question.id, question.post_title, question.post_text, question.post_type, COUNT(DISTINCT answers.id) as answers, (COUNT(DISTINCT up.id) - COUNT(DISTINCT down.id)) as score, (COUNT(DISTINCT up.id) + COUNT(DISTINCT down.id)) as vote_count, COUNT(DISTINCT up.id) as up_votes, COUNT(DISTINCT down.id) as down_votes");
