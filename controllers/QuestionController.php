@@ -2,6 +2,7 @@
 
 namespace humhub\modules\questionanswer\controllers;
 
+use humhub\modules\content\models\Content;
 use humhub\modules\questionanswer\models\Answer;
 use humhub\modules\questionanswer\models\QuestionTag;
 use humhub\modules\questionanswer\models\Tag;
@@ -29,58 +30,6 @@ class QuestionController extends Controller
             ]
         ];
     }
-
-	/**
-	 * ReIndex:
-	 *  - Questions
-	 *  - Answers
-	 *  - Comments
-	 */
-	public function actionReindex()
-	{
-
-		// Remove all questions from search index then index again
-		echo ">>>>>> STARTING QUESTION REINDEX >>>>>>>><br>";
-		foreach (Question::find()->all() as $obj) {
-			echo "[#".$obj->id."] " . $obj->post_title . "<br>";
-
-			// Add a content container to the object if there isn't one
-//			if($obj->content->container == null) {
-				$containerClass = User::className();
-				$contentContainer = $containerClass::findOne(['guid' => User::findIdentity($obj->created_by)->guid]);
-				$obj->content->container = $contentContainer;
-
-				\humhub\modules\content\widgets\WallCreateContentForm::create($obj, $contentContainer);
-				$obj->save();
-//			}
-
-
-			\Yii::$app->search->delete($obj);
-			\Yii::$app->search->add($obj);
-		}
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";
-
-
-		// Remove all answers from search index then index them again
-		/*echo ">>>>>> STARTING ANSWER REINDEX >>>>>>>><br>";
-		foreach(Answer::find()->all() as $obj) {
-			echo "[#".$obj->id."] " . $obj->post_text . "<br>";
-			\Yii::$app->search->delete($obj);
-			\Yii::$app->search->add($obj);
-		}
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br>";*/
-
-
-		// Remove all tags from search index then index them again
-		/*echo ">>>>>> STARTING TAG REINDEX >>>>>>>><br>";
-		foreach(Tag::find()->all() as $obj) {
-			echo "[#".$obj->id."] " . $obj->tag . "<br>";
-			\Yii::$app->search->delete($obj);
-			\Yii::$app->search->add($obj);
-		}
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><br><br><br>";*/
-		echo "Reindex complete";
-	}
 
 	/**
 	 * Displays a particular model.
