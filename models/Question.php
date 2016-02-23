@@ -311,6 +311,14 @@ class Question extends ContentActiveRecord implements Searchable
 		return "Question";
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+
+	public function getContentDescription()
+	{
+		return $this->post_title;
+	}
 
 	public function canWrite() {
 		return true;

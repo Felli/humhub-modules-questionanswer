@@ -8,6 +8,7 @@ use humhub\modules\user\models\User;
 use Yii;
 use humhub\modules\content\components\ContentActiveRecord;
 use humhub\modules\search\interfaces\Searchable;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "question".
@@ -153,10 +154,27 @@ class Answer extends ContentActiveRecord implements Searchable
      * @param array $parameters
      * @return string
      */
-    public function getUrl($parameters = array())
+    public function getUrl()
     {
-    	return Yii::app()->createUrl('//questionanswer/question/view', $parameters);
+		return Url::toRoute(['/questionanswer/question/view', 'id' => $this->question_id]);
     }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getContentName()
+	{
+		return "Answer";
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+
+	public function getContentDescription()
+	{
+		return $this->post_text;
+	}
 
 
 	/**
@@ -175,9 +193,6 @@ class Answer extends ContentActiveRecord implements Searchable
 		return $attributes;
 	}
 
-	public function getContentName()
-	{
-		return "Answer";
-	}
+
 
 }
