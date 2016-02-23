@@ -1,5 +1,10 @@
 <?php
 
+namespace humhub\modules\questionanswer\widgets;
+
+use humhub\modules\reportcontent\models\ReportReasonForm;
+use Yii;
+
 /**
  * Taps into ReportContent module
  *
@@ -7,7 +12,8 @@
  * This widget allows to report a post.
  * @package humhub.modules.reportcontent.widgets
  */
-class QAReportContentWidget extends HWidget
+
+class QAReportContentWidget extends \yii\base\Widget
 {
 
     /**
@@ -23,7 +29,7 @@ class QAReportContentWidget extends HWidget
     public function run()
     {
         if ($this->content->canReportPost()) {
-            $this->render('reportSpamLink', array(
+            return $this->render('reportSpamLink', array(
                 'object' => $this->content,
                 'model' => new ReportReasonForm()
             ));
