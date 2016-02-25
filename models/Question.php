@@ -132,7 +132,7 @@ class Question extends ContentActiveRecord implements Searchable
 	 */
 	public static function find()
 	{
-		return parent::find()->andWhere(['post_type' => 'question']);
+		return parent::find()->andWhere(['question.post_type' => 'question']);
 	}
 
 
