@@ -83,7 +83,7 @@ class CommentController extends Controller
 		//$model->content->container = $contentContainer;
 
 		if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-			$this->redirect(array('view','id'=>$model->id));
+			$this->redirect(array('question/view','id'=>$model->question_id));
 		}
 
 		return $this->render('update',array(
