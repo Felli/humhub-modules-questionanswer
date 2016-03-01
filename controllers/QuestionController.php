@@ -8,6 +8,8 @@ use humhub\modules\questionanswer\models\QuestionTag;
 use humhub\modules\questionanswer\models\Tag;
 use humhub\modules\questionanswer\models\Question;
 use humhub\modules\questionanswer\models\QuestionSearch;
+use humhub\modules\reportcontent\models\ReportContent;
+use humhub\modules\reportcontent\models\ReportReasonForm;
 use humhub\modules\user\models\User;
 use Yii;
 //use humhub\modules\content\components\ContentContainerController;
@@ -261,38 +263,32 @@ class QuestionController extends Controller
 	public function actionReport()
 	{
 
-        $this->forcePostRequest();
+		$this->forcePostRequest();
 
-        $json = array();
-        $json['success'] = false;
+		Yii::$app->response->format = 'json';
 
-        // Only run if the reportcontent module is available
-        if(isset(Yii::app()->modules['reportcontent'])) {
+		$json = array();
+		$json['success'] = false;
 
-            $form = new ReportReasonForm();
+		// Only run if the reportcontent module is available
+		if(isset(Yii::$app->modules['reportcontent'])) {
 
-            if (isset($_POST['ReportReasonForm'])) {
-                $_POST['ReportReasonForm'] = Yii::app()->input->stripClean($_POST['ReportReasonForm']);
-                $form->attributes = $_POST['ReportReasonForm'];
+			$form = new ReportReasonForm();
+			if ($form->load(Yii::$app->request->post()) && $form->validate() && Question::findOne(['id' => $form->object_id])->canReportPost()) {
+				$report = new ReportContent();
+				$report->created_by = Yii::$app->user->id;
+				$report->reason = $form->reason;
+				$report->object_model = Question::className();
+				$report->object_id = $form->object_id;
 
-                if ($form->validate() && Question::model()->findByPk($form->object_id)->canReportPost()) {
+				if ($report->save()) {
+					$json['success'] = true;
+				}
+			}
 
-                    $report = new ReportContent();
-                    $report->created_by = Yii::app()->user->id;
-                    $report->reason = $form->reason;
-                    $report->object_model = 'Question';
-                    $report->object_id = $form->object_id;
+		}
+		return $json;
 
-                    $report->save();
-
-                    $json['success'] = true;
-                }
-            }
-
-        }
-
-		echo CJSON::encode($json);
-		Yii::app()->end();
 	}
 
 

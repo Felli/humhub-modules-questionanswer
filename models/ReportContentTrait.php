@@ -24,7 +24,7 @@ trait ReportContentTrait
     {
 
 
-        if(!$this->reportModuleEnabled())
+        if(!Yii::$app->hasModule('reportcontent'))
             return false;
 
         if ($userId == "")

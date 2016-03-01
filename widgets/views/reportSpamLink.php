@@ -57,7 +57,7 @@ use humhub\compat\CActiveForm;
                             'type' => 'POST',
                             'beforeSend' => new yii\web\JsExpression('function(){ setModalLoader(); }'),
                             'success' => new yii\web\JsExpression('function(data){ if(data.success) $("#reportLinkPost_modal_postreport_' . $object->id . '").hide(); }'),
-                            'url' => \yii\helpers\Url::to(['/reportcontent/report-content/report']),
+                            'url' => \yii\helpers\Url::to(['/questionanswer/question/report']),
                         ],
                         'htmlOptions' => [
                             'return' => 'true',
