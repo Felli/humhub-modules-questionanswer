@@ -21,7 +21,7 @@ class Events extends \yii\base\Object
             'label' => "Q&A",
             'icon' => '<i class="fa fa-stack-exchange"></i>',
             'url' => Url::to(['/questionanswer/question/index']),
-            'sortOrder' => 200,
+            'sortOrder' => 350,
             'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'questionanswer'),
         ));
     }
