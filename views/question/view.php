@@ -68,7 +68,7 @@ use yii\helpers\Html;
                             <br /><br />
                             <?php
                             echo ShowFiles::widget(array('object' => $model));
-                            $comments = Answer::findOne(['id' => $model->id])->comments;
+                            $comments = Comment::findAll(['parent_id' => $model->id]);
                             if($comments) {
                                 echo "<div style=\"border: 1px solid #ccc; background-color: #f2f2f2; padding:10px;\">";
                                 foreach($comments as $comment) {
