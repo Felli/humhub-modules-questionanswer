@@ -174,7 +174,7 @@ use yii\helpers\Html;
                             $answerModel = Answer::findOne(['id' => $question_answer['id']]);
                             $comments = $answerModel->comments;
 
-                            echo ShowFiles::widget(array('object' => $model)); //**kane changed to $model from $answerModel
+                            echo ShowFiles::widget(array('object' => $answerModel));
 
                             if($comments) {
                                 echo "<div style=\"border: 1px solid #ccc; background-color: #f2f2f2; padding:10px; margin-top:10px;\">";
