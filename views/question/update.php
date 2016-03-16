@@ -1,15 +1,9 @@
 <div class="container">
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
-			<div class="panel panel-default qanda-panel">
-				<div class="panel-body">
-					<div class="media">
-						<div class="media-body" style="padding-top:5px; ">
-							<h3 class="media-heading">Edit Question #<?php echo $model->id ?></h3>
-							<?php echo $this->render('_form', array('model'=>$model)); ?>
-						</div>
-					</div>
-				</div>
+		<div class="panel panel-default qanda-form">
+			<div class="panel-body">
+				<h1>Update Question <?php echo $model->id; ?></h1>
+				<?php echo $this->render('_form', array('model'=>$model)); ?>
 			</div>
 		</div>
 	</div>
