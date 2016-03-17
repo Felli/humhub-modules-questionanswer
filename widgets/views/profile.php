@@ -12,6 +12,12 @@ use humhub\modules\karma\models\KarmaUser;
 ?>
 
 <div class="media-body" style="position:absolute;top:0;right:0; padding:10px; width:200px; background-color:#708FA0; color:#fff;">
+    <div class="row">
+        <div class="col-xs-12 qanda-profile-timestamp">
+            <small>posted <?php echo \humhub\widgets\TimeAgo::widget(['timestamp' => $timestamp]); ?></small>
+        </div>
+    </div>
+
     <a href="<?php echo \yii\helpers\Url::toRoute(['/user/profile', 'uguid' => $user->guid]); ?>" style="color:#fff;">
         <img id="user-account-image" class="img-rounded pull-left"
              src="<?php echo $user->getProfileImage()->getUrl(); ?>"
