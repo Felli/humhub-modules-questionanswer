@@ -17,7 +17,7 @@ use humhub\modules\karma\models\KarmaUser;
 
     <div class="row">
         <div class="col-xs-12 qanda-profile-timestamp">
-            <small>posted <?php echo \humhub\widgets\TimeAgo::widget(['timestamp' => $timestamp]); ?></small>
+            <small>posted <?php echo $timestamp; ?></small>
         </div>
     </div>
     <div class="row">

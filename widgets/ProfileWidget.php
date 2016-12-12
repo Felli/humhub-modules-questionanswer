@@ -46,6 +46,11 @@ class ProfileWidget extends Widget {
      * Executes the widget.
      */
     public function run() {
+        $timeZone = \Yii::$app->user->identity->time_zone;
+        $date = new \DateTime($this->timestamp, new \DateTimeZone('UTC'));
+        $timestamp = $date->getTimestamp();
+        $date->setTimezone(new \DateTimeZone($timeZone));
+        $this->timestamp = $date->format('Y-m-d H:i:s');
 
         return $this->render('profile', array(
             'user' => $this->user,
