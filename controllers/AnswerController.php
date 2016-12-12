@@ -24,7 +24,8 @@ use yii\bootstrap\ActiveForm;
 use yii\data\ActiveDataProvider;
 use humhub\modules\content\models\Content;
 use humhub\components\Controller;
-use Yii;
+use Yii;]
+use yii\helpers\Url;
 
 class AnswerController extends Controller
 {
@@ -121,7 +122,7 @@ class AnswerController extends Controller
 			$model->load(\Yii::$app->request->post());
 			Yii::$app->search->update($model);
 			if($model->save())
-				$this->redirect($this->createUrl('//questionanswer/question/view', array('id' => $model->question_id)));
+				$this->redirect(Url::toRoute(array('//questionanswer/question/view', 'id' => $model->question_id)));
 		}
 
 		return $this->render('update',array(
