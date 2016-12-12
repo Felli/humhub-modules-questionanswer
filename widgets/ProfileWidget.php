@@ -50,7 +50,7 @@ class ProfileWidget extends Widget {
         $date = new \DateTime($this->timestamp, new \DateTimeZone('UTC'));
         $timestamp = $date->getTimestamp();
         $date->setTimezone(new \DateTimeZone($timeZone));
-        $this->timestamp = $date->format('Y-m-d H:i:s');
+        $this->timestamp = $date->format('F j, Y, g:i a');
 
         return $this->render('profile', array(
             'user' => $this->user,
