@@ -1,20 +1,5 @@
 <?php
 
-/**
- * Connected Communities Initiative
- * Copyright (C) 2016 Queensland University of Technology
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 namespace humhub\modules\questionanswer\controllers;
 use humhub\modules\content\components\ContentAddonController;
 use humhub\modules\content\components\ContentContainerController;
@@ -27,6 +12,7 @@ use Yii;
 
 use humhub\models\Setting;
 use humhub\components\Controller;
+use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\db\Query;
@@ -34,6 +20,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use humhub\modules\content\models\Content;
+use yii\web\BadRequestHttpException;
 
 class QuestionController extends Controller
 {
@@ -204,7 +191,7 @@ class QuestionController extends Controller
 		$limit = 10;
 		$question = new Question;
 		$dataProvider=new ActiveDataProvider([
-			'query' => Question::find()->andWhere(['post_type' => 'question']),
+			'query' => Question::find()->orderBy(['id' => SORT_DESC])->andWhere(['post_type' => 'question']),
 			'pagination' => [
 				'pageSize' => $limit,
 			],
@@ -234,8 +221,8 @@ class QuestionController extends Controller
 				WHERE question.post_type = 'question'
 				GROUP BY question.id
 				HAVING answers = 0
-				ORDER BY score DESC, vote_count DESC, question.created_at DESC
-				";
+				ORDER BY question.id DESC";
+//				ORDER BY score DESC, vote_count DESC, question.created_at DESC
 
 		$count = Yii::$app->db->createCommand($sql)->queryAll();
 
@@ -298,8 +285,8 @@ class QuestionController extends Controller
                                         ORDER BY COUNT(tag_id) DESC, question.created_at DESC
                                     )
 				GROUP BY question.id
-				
-				ORDER BY tag_count DESC";
+				ORDER BY question.id DESC";
+//				ORDER BY tag_count DESC";
 		$limit = 10;
 
 		$count = Yii::$app->db->createCommand($sql, [':user_id' => Yii::$app->user->id])->queryAll();
