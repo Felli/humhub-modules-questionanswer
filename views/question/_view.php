@@ -8,7 +8,7 @@ use yii\helpers\Url;
 use humhub\modules\questionanswer\models\Question;
 ?>
 
-<div class="media" style="margin-top: 10px;">
+<div class="media" style="position:relative;margin-top: 10px;">
     <div class="pull-left">
         <div class="vote_control pull-left" style="padding:5px; padding-right:10px; border-right:1px solid #eee; margin-right:10px;margin-top:-18px">
             <?php 
@@ -50,13 +50,23 @@ use humhub\modules\questionanswer\models\Question;
         </div>
 
     </div>
-
-    <div class="media-body" style="padding-top:5px; padding-left:10px;">
+    <?php
+    $question = Question::findOne($model->id);
+    $timeZone = \Yii::$app->user->identity->time_zone;
+    $date = new \DateTime($question->created_at, new \DateTimeZone('UTC'));
+    $timestamp = $date->getTimestamp();
+    $date->setTimezone(new \DateTimeZone($timeZone));
+    $datetime = $date->format('F j, Y, g:i a');
+    ?>
+    <div class="media-body" style="position:relative;padding-top:5px; padding-left:10px;">
         <h4 class="media-heading">
-        	<?php echo Html::a(Html::encode($model->post_title), array('view', 'id'=>$model->id)); ?>
+            <?php echo Html::a(Html::encode($model->post_title), array('view', 'id'=>$model->id)); ?>
+            <div class="time" style="float:right;margin-left:5px;">
+                <?= $datetime; ?>
+            </div>
         </h4>
-
         <h5><?php echo Html::encode(\humhub\libs\Helpers::truncateText($model->post_text, 200)); ?></h5>
     </div>
+
 </div>
 

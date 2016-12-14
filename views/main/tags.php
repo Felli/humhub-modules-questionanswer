@@ -37,9 +37,10 @@ use humhub\modules\questionanswer\models\Question;
                     <div class="media" style="margin-top: 10px;">
                         <div class="pull-left">
                             <div class="vote_control pull-left" style="padding:5px; padding-right:10px; border-right:1px solid #eee; margin-right:10px;margin-top:-18px">
-                                <?php 
+                                <?php
                                 $upBtnClass = ""; $downBtnClass = ""; $vote = ""; $vote_type = "up";
                                 $model = (object) $question;
+
                                 // Change the button class to 'active' if the user has voted
                                 $vote = QuestionVotes::find()->andWhere(['post_id' => $model->id, 'created_by' => \Yii::$app->user->id])->one(); // post($data->id)->user(Yii::app()->user->id)
                                 if($vote) {
@@ -72,10 +73,20 @@ use humhub\modules\questionanswer\models\Question;
                             </div>
 
                         </div>
-
+                        <?php
+                        $question = Question::findOne($model->id);
+                        $timeZone = \Yii::$app->user->identity->time_zone;
+                        $date = new \DateTime($question->created_at, new \DateTimeZone('UTC'));
+                        $timestamp = $date->getTimestamp();
+                        $date->setTimezone(new \DateTimeZone($timeZone));
+                        $datetime = $date->format('F j, Y, g:i a');
+                        ?>
                         <div class="media-body" style="padding-top:5px; padding-left:10px;">
                             <h4 class="media-heading">
                                 <?php echo Html::a(Html::encode($question['post_title']), Url::toRoute(array('//questionanswer/question/view', 'id' => $question['id']))); ?>
+                                <div class="time" style="float:right;margin-left:5px;">
+                                    <?= $datetime; ?>
+                                </div>
                             </h4>
                             <h5><?php echo Html::encode((strlen($question['post_text']) > 203) ? substr($question['post_text'],0,200).'...' : $question['post_text']); ?></h5>
                         </div>
