@@ -308,7 +308,7 @@ class Question extends ActiveRecord implements Searchable, ContentTitlePreview
                 AND qt.question_id = q.id 
                 AND qt.tag_id = :tag_id
 				GROUP BY q.id
-				ORDER BY score DESC, vote_count DESC, q.created_at DESC";
+				ORDER BY q.id DESC";
 
 		return \Yii::$app->db->createCommand($sql)->bindValue('tag_id', $tag_id)->queryAll();
 
