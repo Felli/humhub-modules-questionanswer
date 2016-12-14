@@ -126,6 +126,9 @@ use humhub\libs\HHtml;
                                             $timeZone = \Yii::$app->user->identity->time_zone;
                                             $date = new \DateTime($comment->created_at, new \DateTimeZone('UTC'));
                                             $timestamp = $date->getTimestamp();
+                                            if(empty($timeZone)) {
+                                                $timeZone = 'UTC';
+                                            }
                                             $date->setTimezone(new \DateTimeZone($timeZone));
                                             $comment->created_at = $date->format('F j, Y, g:i a');
                                     echo " &bull; ".date('F j, Y, g:i a', strtotime($comment->created_at));

@@ -78,6 +78,9 @@ use humhub\modules\questionanswer\models\Question;
                         $timeZone = \Yii::$app->user->identity->time_zone;
                         $date = new \DateTime($question->created_at, new \DateTimeZone('UTC'));
                         $timestamp = $date->getTimestamp();
+                        if(empty($timeZone)) {
+                            $timeZone = 'UTC';
+                        }
                         $date->setTimezone(new \DateTimeZone($timeZone));
                         $datetime = $date->format('F j, Y, g:i a');
                         ?>

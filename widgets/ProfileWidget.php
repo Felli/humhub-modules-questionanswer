@@ -49,6 +49,9 @@ class ProfileWidget extends Widget {
         $timeZone = \Yii::$app->user->identity->time_zone;
         $date = new \DateTime($this->timestamp, new \DateTimeZone('UTC'));
         $timestamp = $date->getTimestamp();
+        if(empty($timeZone)) {
+            $timeZone = 'UTC';
+        }
         $date->setTimezone(new \DateTimeZone($timeZone));
         $this->timestamp = $date->format('F j, Y, g:i a');
 
