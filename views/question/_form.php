@@ -22,7 +22,7 @@
 
 	<div class="row">
 		<div class="col-xs-12">
-			<?php echo $form->field($model, 'post_text')->textInput(array('rows'=>6, 'cols'=>50)); ?>
+			<?php echo $form->field($model, 'post_text')->textArea(array('rows'=>6, 'cols'=>50)); ?>
 		</div>
 	</div>
 
