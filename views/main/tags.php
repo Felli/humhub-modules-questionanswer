@@ -99,18 +99,21 @@ use humhub\modules\questionanswer\models\Question;
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>Related</strong> Posts</div>
-                <div class="list-group">
-                    <a class="list-group-item" href="#">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</a>
-                    <a class="list-group-item" href="#">Nunc pharetra blandit sapien, et tempor nisi.</a>
-                    <a class="list-group-item" href="#">Duis finibus venenatis commodo. </a>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Related</strong> Posts</div>
+                    <?php if(count($questions) > 0) { ?>
+                        <div class="list-group">
+                            <?php foreach ($questions as $post) { ?>
+                                <a class="list-group-item" href="<?php echo Url::toRoute(array('//questionanswer/question/view', 'id' => $post['id'])); ?>"><?php echo Html::encode($post['post_title']); ?></a>
+                            <?php } ?>
+                        </div>
+                        <br>
+                    <?php } else { ?>
+                        <div class="panel-body"><p>No related posts</p></div>
+                    <?php } ?>
                 </div>
-                <br>
             </div>
-        </div>
     </div>
 </div>
 <!-- end: show content -->
