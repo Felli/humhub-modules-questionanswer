@@ -291,11 +291,56 @@ class QuestionController extends Controller
 
 		$count = Yii::$app->db->createCommand($sql, [':user_id' => Yii::$app->user->id])->queryAll();
 
-		if(!empty($count)) {
-			$count = count($count);
-		} else {
-			$count = 0;
-		}
+        if(!empty($count)) {
+            $count = count($count);
+        } else {
+            $count = 0;
+        }
+
+        // if user has less than 20 questions show them posts by other users
+        if ($count < 20) {
+            $sql = "SELECT question.id, question.post_title, question.post_text, question.post_type, COUNT(*) as tag_count
+				FROM question
+				LEFT JOIN question_tag
+					ON (question.id = question_tag.question_id)
+				WHERE
+				question.post_type = 'question'
+				AND
+				question_tag.tag_id IN (
+                                        SELECT id as tag_id FROM (
+                                            SELECT tag.id
+                                            FROM tag, question_votes, question
+                                            LEFT JOIN question_tag ON (question.id = question_tag.question_id)
+                                            WHERE question_votes.post_id = question.id
+                                            AND question_tag.tag_id = tag.id
+                                            AND tag.tag != \"\"
+                                            AND question_votes.vote_on = \"question\"
+                                            AND question_votes.vote_type = \"up\"
+
+                                            UNION ALL
+
+                                            SELECT tag.id
+                                            FROM tag, question_tag LEFT JOIN question ON (question_tag.question_id = question.id)
+                                            WHERE question_tag.tag_id = tag.id
+                                            AND tag.tag != \"\"
+                                        ) as c
+
+                                        GROUP BY id
+                                        ORDER BY COUNT(tag_id) DESC, question.created_at DESC
+                                    )
+				GROUP BY question.id
+				ORDER BY question.created_at DESC";
+
+            $limit = 10;
+
+            $count = Yii::$app->db->createCommand($sql, [':user_id' => Yii::$app->user->id])->queryAll();
+
+            if(!empty($count)) {
+                $count = count($count);
+            } else {
+                $count = 0;
+            }
+        }
 
 		$dataProvider=new SqlDataProvider([
 			'sql' => $sql,
