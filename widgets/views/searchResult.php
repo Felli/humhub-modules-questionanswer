@@ -15,7 +15,10 @@ use yii\helpers\Url;
 ?>
 
 <li>
-    <a href="<?php echo Url::toRoute(array('/questionanswer/question/view', 'id' => $question->id)); ?>">
+    <?php
+        $foundId = ($question->question_id) ? $question->question_id : $question->id;
+    ?>
+    <a href="<?php echo Url::toRoute(array('/questionanswer/question/view', 'id' => $foundId)); ?>">
         <div class="media">
             <div class="media-body">
                 <strong><?php echo Html::encode($question->post_title); ?> </strong><br>
