@@ -224,33 +224,31 @@ use humhub\modules\user\components\User;
         };
 
         var questions = '<?= addslashes($resultSearchData); ?>';
+        var answers = '<?= addslashes($resultSearchDataAnswer); ?>';
+
         $('#qanda-search .typeahead').typeahead({
             hint: true,
             highlight: true,
-            minLength: 1
+            minLength: 3,
         },
-        {
-            name: 'questions',
-            source: substringMatcher(JSON.parse(questions)),
-            limit: 1000,
-            templates: {
-                footer: '<btn class="btn btn-info btn-new-post" data-toggle="modal" data-target="#modalAskNewQuestion">Ask new question</button>',
-                empty: '<p>No results found matching your query.</p><btn class="btn btn-info btn-new-post" data-toggle="modal" data-target="#modalAskNewQuestion">Ask a new question or share something</button>',
-            }
-        });
+            {
+                name: 'questions',
+                source: substringMatcher(JSON.parse(questions)),
+                templates: {
+                    header: '<h3 class="panel-profile-header">Questions found:</h3>',
+                    empty: '<p>No questions found matching your query.</p>',
 
-        $('.searchInput').on("keyup", function() {
-            var dataSearch = $(".tt-dataset .tt-suggestion").detach();
-            if(dataSearch.length) {
-                var html = "<div class='scrollSearchData'>";
-                    $.each(dataSearch,function(index, value) {
-                        html+=$(this)[0].outerHTML;
-                    })
-                html+="</div>";
-
-                $(".tt-dataset .btn").before(html);
-            }
-        })
+                }
+            },
+            {
+                name: 'answers',
+                source: substringMatcher(JSON.parse(answers)),
+                templates: {
+                    header: '<h3 class="panel-profile-header">Answers found:</h3>',
+                    empty: '<btn class="btn btn-info btn-new-post" data-toggle="modal" data-target="#modalAskNewQuestion">Ask a new question or share something</button>',
+                    footer: '<btn class="btn btn-info btn-new-post" data-toggle="modal" data-target="#modalAskNewQuestion">Ask new question</button>',
+                }
+    });
 
         $(document).on("click", ".tt-suggestion", function() {
             var text = $(this).text();
