@@ -101,7 +101,6 @@ class QuestionController extends Controller
 				Yii::$app->end();
 			}
 
-
 			if (isset($_POST['Tags'])) {
 
 				// Split tag string into array
@@ -199,13 +198,17 @@ class QuestionController extends Controller
 
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::map($getAllQuestion, "id" , "post_title");
-//		var_dump($resultSearchData);die;
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
 		));
-		
+
 	}
 
 	/** 
@@ -244,11 +247,17 @@ class QuestionController extends Controller
 		$question = new Question;
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::getColumn($getAllQuestion, ["id" => "post_title"]);
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index', array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
-		));
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
+
+        ));
 
 	}
 
@@ -354,10 +363,15 @@ class QuestionController extends Controller
 		$question = new Question;
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::getColumn($getAllQuestion,[ "id" => "post_title"]);
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
 		));
 	}
 
@@ -460,5 +474,10 @@ class QuestionController extends Controller
 		if(!empty($question)) {
 			echo Url::toRoute(array('//questionanswer/question/view', 'id' => $question->id));
 		}
+		else {
+		    $answer = Answer::find()->andFilterWhere(["post_text" => $text ])->one();
+            echo Url::toRoute(array('//questionanswer/question/view', 'id' => $answer->question_id));
+
+        }
 	}
 }
