@@ -174,12 +174,8 @@ use humhub\libs\HHtml;
 									});
 								</script>
 							</div>
-
-
-
                         </div>
                     </div>
-
                 </div>
             </div>
 

@@ -102,20 +102,7 @@ class QuestionController extends Controller
 			}
 
 			if (isset($_POST['Tags'])) {
-
-				// Split tag string into array
-				$tags = explode(", ", $_POST['Tags']);
-				foreach ($tags as $tag) {
-					$tagObj = new Tag();
-					$tagObj = $tagObj->firstOrCreate($tag);
-					$question_tag = new QuestionTag();
-					$question_tag->question_id = $question->id;
-					$question_tag->tag_id = $tagObj->id;
-					$question_tag->save();
-
-					Yii::$app->search->add($tagObj);
-				}
-
+                $this->_saveTags($_POST['Tags'], $question);
 			}
 			echo json_encode(
 				[
@@ -142,23 +129,47 @@ class QuestionController extends Controller
 		return $string;
 	}
 
+	protected function _saveTags($tags_string, $model)
+    {
+        // Split tag string into array
+        $tags = explode(",", $_POST['Tags']);
+        foreach ($tags as $tag) {
+            $tag = trim($tag);
+            $tagObj = new Tag();
+            $tagObj = $tagObj->firstOrCreate($tag);
+            $question_tag = new QuestionTag();
+            $question_tag->question_id = $model->id;
+            $question_tag->tag_id = $tagObj->id;
+            $question_tag->save();
+            Yii::$app->search->add($tagObj);
+        }
+    }
+
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
 	public function actionUpdate($id)
-	{
-		$model=$this->loadModel($id);
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+    {
+        $model = Question::find()->joinWith(['tags'])->andWhere(['question.id' => $id])->one();
 
-		if(isset($_POST['Question']))
-		{
-			$model->attributes=$_POST['Question'];
-			Yii::$app->search->update($model);
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+
+
+        if (isset($_POST['Question'])) {
+            $model->attributes = $_POST['Question'];
+            Yii::$app->search->update($model);
+            if ($model->save())
+                $this->redirect(array('view', 'id' => $model->id));
+        }
+
+        if (isset($_POST['Tags'])) {
+            // Remove old tags
+            $question_id = $model->id;
+            Yii::$app->db->createCommand()->delete('question_tag', 'question_id = :question_id', [':question_id' => $question_id])->execute();
+            $this->_saveTags($_POST['Tags'], $model);
 		}
 
 		return $this->render('update',array(
