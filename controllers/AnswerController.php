@@ -24,7 +24,7 @@ use yii\bootstrap\ActiveForm;
 use yii\data\ActiveDataProvider;
 use humhub\modules\content\models\Content;
 use humhub\components\Controller;
-use Yii;]
+use Yii;
 use yii\helpers\Url;
 
 class AnswerController extends Controller
@@ -84,6 +84,7 @@ class AnswerController extends Controller
 	 */
 	public function actionCreate()
 	{
+
 		$answer = new Answer();
 
 		if(isset($_POST['Answer'])) {

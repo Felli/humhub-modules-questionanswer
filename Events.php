@@ -44,7 +44,7 @@ class Events extends \yii\base\Object
 
         $event->sender->addItem(array(
             'label' => 'Knowledge',
-            'url' => \Yii::$app->urlManager->createUrl('/questionanswer/question/picked', array()),
+            'url' => \Yii::$app->urlManager->createUrl('/questionanswer/question/index', array()),
             'icon' => '<i class="fa fa-stack-exchange"></i>',
             'isActive' => (\Yii::$app->controller->module && \Yii::$app->controller->module->id == 'questionanswer'),
             'sortOrder' => 10,

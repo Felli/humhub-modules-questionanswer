@@ -101,22 +101,8 @@ class QuestionController extends Controller
 				Yii::$app->end();
 			}
 
-
 			if (isset($_POST['Tags'])) {
-
-				// Split tag string into array
-				$tags = explode(", ", $_POST['Tags']);
-				foreach ($tags as $tag) {
-					$tagObj = new Tag();
-					$tagObj = $tagObj->firstOrCreate($tag);
-					$question_tag = new QuestionTag();
-					$question_tag->question_id = $question->id;
-					$question_tag->tag_id = $tagObj->id;
-					$question_tag->save();
-
-					Yii::$app->search->add($tagObj);
-				}
-
+                $this->_saveTags($_POST['Tags'], $question);
 			}
 			echo json_encode(
 				[
@@ -143,23 +129,47 @@ class QuestionController extends Controller
 		return $string;
 	}
 
+	protected function _saveTags($tags_string, $model)
+    {
+        // Split tag string into array
+        $tags = explode(",", $_POST['Tags']);
+        foreach ($tags as $tag) {
+            $tag = trim($tag);
+            $tagObj = new Tag();
+            $tagObj = $tagObj->firstOrCreate($tag);
+            $question_tag = new QuestionTag();
+            $question_tag->question_id = $model->id;
+            $question_tag->tag_id = $tagObj->id;
+            $question_tag->save();
+            Yii::$app->search->add($tagObj);
+        }
+    }
+
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
 	public function actionUpdate($id)
-	{
-		$model=$this->loadModel($id);
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+    {
+        $model = Question::find()->joinWith(['tags'])->andWhere(['question.id' => $id])->one();
 
-		if(isset($_POST['Question']))
-		{
-			$model->attributes=$_POST['Question'];
-			Yii::$app->search->update($model);
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+
+
+        if (isset($_POST['Question'])) {
+            $model->attributes = $_POST['Question'];
+            Yii::$app->search->update($model);
+            if ($model->save())
+                $this->redirect(array('view', 'id' => $model->id));
+        }
+
+        if (isset($_POST['Tags'])) {
+            // Remove old tags
+            $question_id = $model->id;
+            Yii::$app->db->createCommand()->delete('question_tag', 'question_id = :question_id', [':question_id' => $question_id])->execute();
+            $this->_saveTags($_POST['Tags'], $model);
 		}
 
 		return $this->render('update',array(
@@ -199,13 +209,17 @@ class QuestionController extends Controller
 
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::map($getAllQuestion, "id" , "post_title");
-//		var_dump($resultSearchData);die;
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
 		));
-		
+
 	}
 
 	/** 
@@ -244,11 +258,17 @@ class QuestionController extends Controller
 		$question = new Question;
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::getColumn($getAllQuestion, ["id" => "post_title"]);
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index', array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
-		));
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
+
+        ));
 
 	}
 
@@ -291,11 +311,56 @@ class QuestionController extends Controller
 
 		$count = Yii::$app->db->createCommand($sql, [':user_id' => Yii::$app->user->id])->queryAll();
 
-		if(!empty($count)) {
-			$count = count($count);
-		} else {
-			$count = 0;
-		}
+        if(!empty($count)) {
+            $count = count($count);
+        } else {
+            $count = 0;
+        }
+
+        // if user has less than 20 questions show them posts by other users
+        if ($count < 20) {
+            $sql = "SELECT question.id, question.post_title, question.post_text, question.post_type, COUNT(*) as tag_count
+				FROM question
+				LEFT JOIN question_tag
+					ON (question.id = question_tag.question_id)
+				WHERE
+				question.post_type = 'question'
+				AND
+				question_tag.tag_id IN (
+                                        SELECT id as tag_id FROM (
+                                            SELECT tag.id
+                                            FROM tag, question_votes, question
+                                            LEFT JOIN question_tag ON (question.id = question_tag.question_id)
+                                            WHERE question_votes.post_id = question.id
+                                            AND question_tag.tag_id = tag.id
+                                            AND tag.tag != \"\"
+                                            AND question_votes.vote_on = \"question\"
+                                            AND question_votes.vote_type = \"up\"
+
+                                            UNION ALL
+
+                                            SELECT tag.id
+                                            FROM tag, question_tag LEFT JOIN question ON (question_tag.question_id = question.id)
+                                            WHERE question_tag.tag_id = tag.id
+                                            AND tag.tag != \"\"
+                                        ) as c
+
+                                        GROUP BY id
+                                        ORDER BY COUNT(tag_id) DESC, question.created_at DESC
+                                    )
+				GROUP BY question.id
+				ORDER BY question.created_at DESC";
+
+            $limit = 10;
+
+            $count = Yii::$app->db->createCommand($sql, [':user_id' => Yii::$app->user->id])->queryAll();
+
+            if(!empty($count)) {
+                $count = count($count);
+            } else {
+                $count = 0;
+            }
+        }
 
 		$dataProvider=new SqlDataProvider([
 			'sql' => $sql,
@@ -309,10 +374,15 @@ class QuestionController extends Controller
 		$question = new Question;
 		$getAllQuestion = Question::find()->all();
 		$resultSearchData = ArrayHelper::getColumn($getAllQuestion,[ "id" => "post_title"]);
+
+        $getAllAnswer = Answer::find()->where(['post_type' => 'answer'])->all();
+        $resultSearchDataAnswer = ArrayHelper::map($getAllAnswer, "id" , "post_text");
+
 		return $this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'question' => $question,
 			'resultSearchData' => json_encode($resultSearchData),
+            'resultSearchDataAnswer' => json_encode($resultSearchDataAnswer),
 		));
 	}
 
@@ -415,5 +485,10 @@ class QuestionController extends Controller
 		if(!empty($question)) {
 			echo Url::toRoute(array('//questionanswer/question/view', 'id' => $question->id));
 		}
+		else {
+		    $answer = Answer::find()->andFilterWhere(["post_text" => $text ])->one();
+            echo Url::toRoute(array('//questionanswer/question/view', 'id' => $answer->question_id));
+
+        }
 	}
 }
