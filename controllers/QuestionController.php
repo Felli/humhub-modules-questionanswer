@@ -22,6 +22,7 @@ namespace humhub\modules\questionanswer\controllers;
 
 use humhub\models\Setting;
 use humhub\modules\content\models\Content;
+use humhub\modules\content\widgets\WallCreateContentForm;
 use humhub\modules\property\notifications\NewPropertyQuestion;
 use humhub\modules\questionanswer\models\Answer;
 use humhub\modules\questionanswer\models\Category;
@@ -34,12 +35,14 @@ use humhub\modules\reportcontent\models\ReportContent;
 use humhub\modules\reportcontent\models\ReportReasonForm;
 use humhub\modules\space\behaviors\SpaceModelModules;
 use humhub\modules\user\models\User;
+use humhub\components\behaviors\AccessControl;
 use Yii;
 use humhub\modules\content\components\ContentContainerController;
 use humhub\components\Controller;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use yii\web\HttpException;
+use yii\widgets\ActiveForm;
 
 class QuestionController extends ContentContainerController
 {
@@ -72,7 +75,7 @@ class QuestionController extends ContentContainerController
 	public function init() {
 
         // Use content container set in settings, global by default
-        if(Yii::$app->getModule('questionanswer')->settings->get('useGlobalContentContainer') == null || Yii::$app->getModule('questionanswer')->settings->get('useGlobalContentContainer') == 1) {
+        if (Yii::$app->getModule('questionanswer')->settings->get('useGlobalContentContainer') == null || Yii::$app->getModule('questionanswer')->settings->get('useGlobalContentContainer') == 1) {
             $this->useGlobalContentContainer = true;
         } else {
             $this->useGlobalContentContainer = false;
@@ -81,7 +84,7 @@ class QuestionController extends ContentContainerController
         // Expect exception from Content Container on global index page
         try {
             parent::init();
-        } catch(HttpException $e) {
+        } catch (HttpException $e) {
             // Do nothing.
         }
 
@@ -93,7 +96,7 @@ class QuestionController extends ContentContainerController
     {
         return [
             'acl' => [
-                'class' => \humhub\components\behaviors\AccessControl::className(),
+                'class' => AccessControl::class,
                 'guestAllowedActions' => ['index', 'view']
             ]
         ];
@@ -114,23 +117,22 @@ class QuestionController extends ContentContainerController
         ]);
         
         // Pass the content container to the query when available and not using the global content container
-        if($this->contentContainer) {
+        if ($this->contentContainer) {
             $query->contentContainer($this->contentContainer);
         }
-
         // Return the aggregated view when useGlobalContentContainer == false AND no content container found
-        if(!$this->useGlobalContentContainer && !$this->contentContainer && !Yii::$app->request->get('mode') == "global") {
-            return $this->render('aggregated_index', array(
+        if (!$this->useGlobalContentContainer && !$this->contentContainer && !Yii::$app->request->get('mode') == "global") {
+            return $this->render('aggregated_index', [
                 'groups' => Category::all(),
-            ));
+            ]);
         }
 
-        return $this->render('index', array(
+        return $this->render('index', [
             'contentContainer' => $this->contentContainer,
             'dataProvider' => $dataProvider,
             'searchModel' => $query,
             'model' => Question::find()
-        ));
+        ]);
 
     }
 
@@ -143,15 +145,15 @@ class QuestionController extends ContentContainerController
 
 		$model = $this->loadModel($id);
 
-		return $this->render('view',array(
-
+		return $this->render('view', [
+		    'contentContainer' => $this->contentContainer,
     		'author' => $model->user->id,
     		'question' => $model,
             'answers' => Answer::overview($model->id),
     		'related' => Question::related($model->id),
 
-			'model'=> $model,
-		));
+			'model' => $model,
+		]);
 	}
 
 	/**
@@ -163,21 +165,19 @@ class QuestionController extends ContentContainerController
 
         $question = new Question();
 
-        if(isset($_POST['Question'])) {
-
+        if (isset($_POST['Question'])) {
 
             $question->load(Yii::$app->request->post());
             $question->post_type = "question";
 
-            if($this->contentContainer) {
+            if ($this->contentContainer) {
                 $question->content->setContainer($this->contentContainer);
                 $contentContainer = $this->contentContainer;
             } else {
-                $containerClass = User::className();
+                $containerClass = User::class;
                 $contentContainer = $containerClass::findOne(['guid' => Yii::$app->getUser()->guid]);
                 $question->content->container = $contentContainer;
             }
-
 
             if ($question->validate()) {
 
@@ -186,13 +186,13 @@ class QuestionController extends ContentContainerController
 				// NOTE2: it's also worth looking at doing this the right way and making Q&A a module
 				//			which can be enabled on Spaces and Users.
 				// 		This will free us from needing to do work arounds like below :)
-				\humhub\modules\content\widgets\WallCreateContentForm::create($question, $contentContainer);
+				WallCreateContentForm::create($question, $contentContainer);
 				$question->save();
 
                 // Attach files
                 $question->fileManager->attach(Yii::$app->request->post('fileList'));
 
-                if(isset($_POST['Tags'])) {
+                if (isset($_POST['Tags'])) {
                     // Split tag string into array
                     $tags = explode(", ", $_POST['Tags']);
                     foreach($tags as $tag) {
@@ -204,16 +204,16 @@ class QuestionController extends ContentContainerController
                     }
                 }
 
-
                 $this->redirect($question->getUrl());
 
             }
 
         }
 
-		return $this->render('create',array(
+		return $this->render('create', [
+		    'contentContainer' => $this->contentContainer,
 			'model'=>$question,
-		));
+		]);
 	}
 
 	/**
@@ -230,7 +230,7 @@ class QuestionController extends ContentContainerController
 		$model->content->object_model = Question::class;
 		$model->content->object_id = $model->id;
 
-		$containerClass = User::className();
+		$containerClass = User::class;
 		$contentContainer = $containerClass::findOne(['guid' => Yii::$app->getUser()->guid]);
 		$model->content->container = $contentContainer;
 
@@ -238,10 +238,10 @@ class QuestionController extends ContentContainerController
 			$this->redirect($model->getUrl());
 		}
 
-		return $this->render('update',array(
-			'model'=>$model,
-		));
-
+		return $this->render('update', [
+		    'contentContainer' => $this->contentContainer,
+			'model' => $model,
+		]);
 
 	}
 
@@ -255,35 +255,29 @@ class QuestionController extends ContentContainerController
 		$this->loadModel($id)->delete();
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax']))
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+		if (!isset($_GET['ajax']))
+			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : ['admin']);
 	}
-
 
 	/** 
 	 * Find unanswered questions
 	 */
 	public function actionUnanswered()
 	{
-
 		$criteria = Question::find();
 		$criteria->select("question.id, question.post_title, question.post_text, question.post_type, COUNT(DISTINCT answers.id) as answers, (COUNT(DISTINCT up.id) - COUNT(DISTINCT down.id)) as score, (COUNT(DISTINCT up.id) + COUNT(DISTINCT down.id)) as vote_count, COUNT(DISTINCT up.id) as up_votes, COUNT(DISTINCT down.id) as down_votes");
 		$criteria->from(['content', 'question']);
 		$criteria->join('LEFT JOIN', 'question_votes up', "question.id = up.post_id AND up.vote_on = 'question' AND up.vote_type='up'");
 		$criteria->join('LEFT JOIN', 'question_votes down', "question.id = down.post_id AND down.vote_on = 'question' AND down.vote_type = 'down'");
 		$criteria->join('LEFT JOIN', 'question answers', "question.id = answers.question_id AND answers.post_type = 'answer'");
-		$criteria->where([
-			'question.post_type' => 'question'
-		]);
+		$criteria->where(['question.post_type' => 'question']);
 
 		// Apply content filter to results
-		if($this->contentContainer && $this->useGlobalContentContainer == false) {
+		if ($this->contentContainer && $this->useGlobalContentContainer == false) {
             $criteria->from(['content', 'contentcontainer', 'question']);
             $criteria->andWhere('contentcontainer.id = content.contentcontainer_id');
             $criteria->andWhere(["like", "contentcontainer.class", "humhub\\modules\\space\\models\\Space"]);
-            $criteria->andWhere([
-                "contentcontainer.pk" => $this->contentContainer->id,
-            ]);
+            $criteria->andWhere(["contentcontainer.pk" => $this->contentContainer->id,]);
 
 			$criteria->andWhere('content.object_id = question.id');
 			$criteria->andWhere(['like', 'content.object_model', "humhub\\modules\\questionanswer\\models\\Question"]);
@@ -295,12 +289,13 @@ class QuestionController extends ContentContainerController
 		$criteria->orderBy("score DESC, vote_count DESC, question.created_at DESC");
 
 		$dataProvider = new ActiveDataProvider([
-			'query' => $criteria,
+		    'query' => $criteria,
 		]);
 
-		return $this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
+		return $this->render('index', [
+		    'contentContainer' => $this->contentContainer,
+		    'dataProvider'=>$dataProvider,
+		]);
 
 	}
 
@@ -308,10 +303,10 @@ class QuestionController extends ContentContainerController
 	{
 
 		// Apply content filter to results
-		if($this->contentContainer && $this->useGlobalContentContainer == false) {
+		if ($this->contentContainer && $this->useGlobalContentContainer == false) {
             $criteria = "AND contentcontainer.id = content.contentcontainer_id 
-                        AND contentcontainer.class LIKE 'humhub\\\\\\\\modules\\\\\\\\space\\\\\\\\models\\\\\\\\Space'
-                        AND contentcontainer.pk = " . $this->contentContainer->id;
+                         AND contentcontainer.class LIKE 'humhub\\\\\\\\modules\\\\\\\\space\\\\\\\\models\\\\\\\\Space'
+                         AND contentcontainer.pk = " . $this->contentContainer->id;
             $criteriaFrom = ", contentcontainer";
 		} else {
             $criteria = "";
@@ -345,8 +340,6 @@ class QuestionController extends ContentContainerController
 				)
 				';
 
-
-
 		$foo = Yii::$app->db->createCommand($sql)->bindValue('user_id',  Yii::$app->user->id)->getSql();
 		$bar = Question::findBySql($sql, ['user_id' => Yii::$app->user->id]);
 
@@ -354,10 +347,10 @@ class QuestionController extends ContentContainerController
 			'query' => $bar,
 		]);
 
-		return $this->render('index',array(
+		return $this->render('index', [
+		    'contentContainer' => $this->contentContainer,
 			'dataProvider'=>$dataProvider,
-			'contentContainer'=>$this->contentContainer,
-		));
+		]);
 	}
 
 	/**
@@ -365,7 +358,6 @@ class QuestionController extends ContentContainerController
 	 */
 	public function actionAdmin()
 	{
-
 		$query = Question::find()
 			->andFilterWhere(['post_type' => 'question'])
 			->orderBy('created_at DESC');
@@ -375,18 +367,16 @@ class QuestionController extends ContentContainerController
 		]);
 
 		// Pass the content container to the query when available and not using the global content container
-		if($this->contentContainer && $this->useGlobalContentContainer == false) {
+		if ($this->contentContainer && $this->useGlobalContentContainer == false) {
 			$query->contentContainer($this->contentContainer);
 		}
 
-		return $this->render('admin', array(
+		return $this->render('admin', [
 			'contentContainer'=>$this->contentContainer,
 			'dataProvider' => $dataProvider,
 			'searchModel' => $query,
 			'model' => Question::find()
-		));
-
-
+		]);
 
 	}
 
@@ -395,23 +385,22 @@ class QuestionController extends ContentContainerController
 	 */
 	public function actionReport()
 	{
-
 		$this->forcePostRequest();
 
 		Yii::$app->response->format = 'json';
 
-		$json = array();
+		$json = [];
 		$json['success'] = false;
 
 		// Only run if the reportcontent module is available
-		if(isset(Yii::$app->modules['reportcontent'])) {
+		if (isset(Yii::$app->modules['reportcontent'])) {
 
 			$form = new ReportReasonForm();
 			if ($form->load(Yii::$app->request->post()) && $form->validate() && Question::findOne(['id' => $form->object_id])->canReportPost()) {
 				$report = new ReportContent();
 				$report->created_by = Yii::$app->user->id;
 				$report->reason = $form->reason;
-				$report->object_model = Question::className();
+				$report->object_model = Question::class;
 				$report->object_id = $form->object_id;
 
 				if ($report->save()) {
@@ -424,7 +413,6 @@ class QuestionController extends ContentContainerController
 
 	}
 
-
 	/**
 	 * Controller for viewing a
 	 * tag and loading up all questions
@@ -435,19 +423,18 @@ class QuestionController extends ContentContainerController
 		$tag = Tag::findOne(['id' => Yii::$app->request->get('id')]);
 
 		// Apply content filter to results
-		if($this->contentContainer && $this->useGlobalContentContainer == false) {
+		if ($this->contentContainer && $this->useGlobalContentContainer == false) {
 			$container = $this->contentContainer;
 		} else {
 			$container = null;
 		}
 
-
-		return $this->render('tags', array(
-			'contentContainer'=>$this->contentContainer,
+		return $this->render('tags', [
+			'contentContainer' => $this->contentContainer,
 			'tag' => $tag,
-            'container' => $container,
+			'container' => $this->container,
 			'questions' => Question::tag_overview($tag->id, $container)
-		));
+		]);
 
 	}
 
@@ -456,13 +443,13 @@ class QuestionController extends ContentContainerController
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer $id the ID of the model to be loaded
 	 * @return Question the loaded model
-	 * @throws CHttpException
+	 * @throws HttpException
 	 */
 	public function loadModel($id)
 	{
-		$model=Question::findOne(['id' => $id]);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist.');
+		$model = Question::findOne(['id' => $id]);
+		if ($model === null)
+			throw new HttpException(404,'The requested page does not exist.');
 		return $model;
 	}
 
@@ -472,9 +459,9 @@ class QuestionController extends ContentContainerController
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='question-form')
+		if (isset($_POST['ajax']) && $_POST['ajax']==='question-form')
 		{
-			echo CActiveForm::validate($model);
+			echo ActiveForm::validate($model);
 			Yii::app()->end();
 		}
 	}
