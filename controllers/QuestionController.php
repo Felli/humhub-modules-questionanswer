@@ -432,7 +432,6 @@ class QuestionController extends ContentContainerController
 		return $this->render('tags', [
 			'contentContainer' => $this->contentContainer,
 			'tag' => $tag,
-			'container' => $this->container,
 			'questions' => Question::tag_overview($tag->id, $container)
 		]);
 
